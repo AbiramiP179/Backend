@@ -74,6 +74,30 @@ app.post('/register', (req,res)=> {
     .catch(err => res.status(400).json('unable to join'))
 })
 
+app.post('/book', (req,res)=> {
+    const { seminarhall, purposeofevent,numberofpersons }=req.body;
+
+    if(!seminarhall || !purposeofevent || !numberofpersons)
+    {return res.status(400).json('incorrect form submission')}
+
+    
+    db.transaction(trx => {
+        trx.insert({
+          seminarhall:seminarhall,
+          purposeofevent:purposeofevent,
+          numberofpersons:numberofpersons
+        })
+        .into('list')
+        .returning('*')
+        .then( booker => {
+            res.json(booker[0]);
+        })
+        .then(trx.commit)
+        .catch(trx.rollback)
+    })
+    .catch(err => res.status(400).json('unable to book'))
+})
+
 
 
 app.listen(5000, ()=> {
