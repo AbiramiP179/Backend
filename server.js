@@ -47,6 +47,11 @@ app.get('/',(req, res)=> {
     res.send('hi');
 })
 
+app.get('/api',(req, res)=> {
+   return db.select('*').from('list').then(data => {
+    res.json(data)
+})
+ })
 app.post('/signin', (req, res) => {
 
     const { email, password }=req.body;
@@ -125,7 +130,7 @@ if(!seminarhall || !purposeofevent || !numberofpersons)
 
   var mail = {
     from: 'TCE',
-    to:'m.harshidha@gmail.com,,abiramip@student.tce.edu,arlyn@gmail.com',
+    to:'m.harshidha@gmail.com,,abiramip@student.tce.edu,arlynsneha@gmail.com',
     subject: 'Seminar Hall Request',
     html:"Hey There!<b>You have received a Seminar hall Request.Please log into the website to accept or decline it."
     //<b>From date:${fromdate}\nTo date:${todate}\nSeminar Hall name:${seminarhall}\nPurpose of Event:${purposeofevent}\nAccomadation:${numberofpersons}people"
