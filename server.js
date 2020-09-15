@@ -6,6 +6,28 @@ const e = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
+
+const nodemailer = require('nodemailer');
+const creds = require('./config');
+
+var transport = {
+  host: 'smtp.gmail.com', // e.g. smtp.gmail.com
+  auth: {
+    user: creds.USER,
+    pass: creds.PASS
+  }
+}
+
+var transporter = nodemailer.createTransport(transport)
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.log(error);
+  } else {
+    console.log('All works fine, congratz!');
+  }
+});
+
 const db = knex({
     client: 'pg',
     connection: {
@@ -74,10 +96,13 @@ app.post('/register', (req,res)=> {
     .catch(err => res.status(400).json('unable to join'))
 })
 
-app.post('/book', (req,res)=> {
-    const { seminarhall, purposeofevent,numberofpersons }=req.body;
+app.post('/send', (req, res, next) => {
+  
+const { fromdate,todate,seminarhall, purposeofevent,numberofpersons }=req.body;
 
-    if(!seminarhall || !purposeofevent || !numberofpersons)
+
+
+if(!seminarhall || !purposeofevent || !numberofpersons)
     {return res.status(400).json('incorrect form submission')}
 
     
@@ -94,12 +119,32 @@ app.post('/book', (req,res)=> {
         })
         .then(trx.commit)
         .catch(trx.rollback)
-    })
-    .catch(err => res.status(400).json('unable to book'))
+      })
+        .catch(err => res.status(400).json('unable to book'))
+
+
+  var mail = {
+    from: 'TCE',
+    to:'m.harshidha@gmail.com,,abiramip@student.tce.edu,arlyn@gmail.com',
+    subject: 'Seminar Hall Request',
+    html:"Hey There!<b>You have received a Seminar hall Request.Please log into the website to accept or decline it."
+    //<b>From date:${fromdate}\nTo date:${todate}\nSeminar Hall name:${seminarhall}\nPurpose of Event:${purposeofevent}\nAccomadation:${numberofpersons}people"
+  }
+
+  transporter.sendMail(mail, (err, data) => {
+    if (err) {
+      res.json({
+        msg: 'fail'
+      })
+    } else {
+      res.json({
+        msg: 'success'
+      })
+    }
+  })
 })
 
-
-
+  
 app.listen(5000, ()=> {
     console.log('App is perfect');
 })
