@@ -52,6 +52,24 @@ app.get('/api',(req, res)=> {
     res.json(data)
 })
  })
+app.get('/fetchsem',(req, res)=> {
+   return db.select('seminarhall').from('list').then(data => {
+    res.json(data[data.length-1])
+})
+ })
+
+app.get('/fetchses',(req, res)=> {
+   return db.select('session').from('list').then(data => {
+    res.json(data[data.length-1])
+})  })
+
+   app.get('/fetchdate',(req, res)=> {
+   return db.select('fromdate').from('list').then(data => {
+    res.json(data[data.length-1])
+})
+
+
+ })
 app.post('/signin', (req, res) => {
 
     const { email, password }=req.body;
@@ -103,22 +121,24 @@ app.post('/register', (req,res)=> {
 
 app.post('/send', (req, res, next) => {
   
-const { fromdate,todate,seminarhall, purposeofevent,numberofpersons }=req.body;
+const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session }=req.body;
 
 
 
-if(!seminarhall || !purposeofevent || !numberofpersons)
+if(!seminarhall || !purposeofevent || !numberofpersons || !session || !fromdate)
     {return res.status(400).json('incorrect form submission')}
 
     
     db.transaction(trx => {
         trx.insert({
+          fromdate:fromdate,
           seminarhall:seminarhall,
           purposeofevent:purposeofevent,
-          numberofpersons:numberofpersons
+          numberofpersons:numberofpersons,
+          session:session
         })
         .into('list')
-        .returning('*')
+        .returning('seminarhall')
         .then( booker => {
             res.json(booker[0]);
         })
@@ -130,7 +150,7 @@ if(!seminarhall || !purposeofevent || !numberofpersons)
 
   var mail = {
     from: 'TCE',
-    to:'m.harshidha@gmail.com,,abiramip@student.tce.edu,arlynsneha@gmail.com',
+    to:'arlynsneha@gmail.com',
     subject: 'Seminar Hall Request',
     html:"Hey There!<b>You have received a Seminar hall Request.Please log into the website to accept or decline it."
     //<b>From date:${fromdate}\nTo date:${todate}\nSeminar Hall name:${seminarhall}\nPurpose of Event:${purposeofevent}\nAccomadation:${numberofpersons}people"
