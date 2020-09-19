@@ -150,7 +150,7 @@ if(!seminarhall || !purposeofevent || !numberofpersons || !session || !fromdate)
 
   var mail = {
     from: 'TCE',
-    to:'arlynsneha@gmail.com',
+    to:'arlynsneha@gmail.com,m.harshidha@gmail.com,abiramip@student.tce.edu',
     subject: 'Seminar Hall Request',
     html:"Hey There!<b>You have received a Seminar hall Request.Please log into the website to accept or decline it."
     //<b>From date:${fromdate}\nTo date:${todate}\nSeminar Hall name:${seminarhall}\nPurpose of Event:${purposeofevent}\nAccomadation:${numberofpersons}people"
