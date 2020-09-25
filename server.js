@@ -128,7 +128,7 @@ const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session }=re
 
 if(!seminarhall || !purposeofevent || !numberofpersons || !session || !fromdate)
     {return res.status(400).json('incorrect form submission')}
-
+  
   
   db.select('*').from ('list').where({
   fromdate:fromdate,
@@ -148,22 +148,28 @@ if(!seminarhall || !purposeofevent || !numberofpersons || !session || !fromdate)
                 res.send('there is no booking')
            }
     
-}).catch(err =>  {db.transaction(trx => {
-        trx.insert({
-        // fromdate:fromdate,
-          seminarhall:seminarhall,
-          purposeofevent:purposeofevent,
-          numberofpersons:numberofpersons,
-          session:session,
+}).catch(err =>
+
+    db.select('email', 'seminarhall').from('faculty')
+      .where('seminarhall', '=', seminarhall)
+      .then(data => {
+         //const gold=data[0].email;
+         db.transaction(trx => {
+         trx.insert({
           fromdate:fromdate
+          email:data[0].email,
+          seminarhall:data[0].seminarhall,
+          purposeofevent:purposeofevent,
+          numberofpersons:numberofpersons
+          session:session
         })
         .into('list')
-        .returning('seminarhall')
+        .returning('*')
         .then( booker => {
 
              var mail = {
     from: 'TCE',
-    to:'arlynsneha@gmail.com,m.harshidha@gmail.com,abiramip@student.tce.edu',
+    to:booker[0].email,
     subject: 'Seminar Hall Request',
     html:"Heyyy There!<b>You have received a Seminar hall Request.Please log into the website to accept or decline it."
     //<b>From date:${fromdate}\nTo date:${todate}\nSeminar Hall name:${seminarhall}\nPurpose of Event:${purposeofevent}\nAccomadation:${numberofpersons}people"
