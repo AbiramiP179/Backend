@@ -11,7 +11,9 @@ const nodemailer = require('nodemailer');
 const creds = require('./config');
 
 var transport = {
-  host: 'smtp.gmail.com', // e.g. smtp.gmail.com
+  host:'smtp.gmail.com', // e.g. smtp.gmail.com
+   port: 465,
+  secure: true,
   auth: {
     user: creds.USER,
     pass: creds.PASS
@@ -125,48 +127,74 @@ const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session }=re
 
 
 
-if(!seminarhall || !purposeofevent || !numberofpersons || !session || !fromdate)
+ if(!seminarhall || !purposeofevent || !numberofpersons)
     {return res.status(400).json('incorrect form submission')}
+     db.select('*').from ('list').where({
+  fromdate:fromdate,
+  seminarhall: seminarhall,
+  session:session
+   })
+  .then(data => {
+               
+           // res.json(session)
 
+           if (data[0].session === session)
+           {
+             res.status(400).send('there is already a booking')
+           }
+
+           else
+           {
+                res.send('there is no booking')
+           }
     
-    db.transaction(trx => {
+               })
+
+
+   .catch(err =>
+
+
+    db.select('email', 'seminarhall').from('faculty')
+      .where('seminarhall', '=', seminarhall)
+      .then(data => {
+  
+       db.transaction(trx => {
         trx.insert({
-          fromdate:fromdate,
-          seminarhall:seminarhall,
+          //fromdate:fromdate
+          email:data[0].email,
+          seminarhall:data[0].seminarhall,
           purposeofevent:purposeofevent,
-          numberofpersons:numberofpersons,
-          session:session
+          numberofpersons:numberofpersons
+          //session:session
         })
         .into('list')
-        .returning('seminarhall')
+        .returning('*')
         .then( booker => {
-            res.json(booker[0]);
+            //res.json(booker[0]);
+             var mail = {
+                  from: 'TCE',
+                  to:booker[0].email,
+                  subject: 'Seminar Hall Request',
+                  html:"Hey There!<b>You have received a Seminar hall Request.Please log into the website to accept or decline it."
+    //<b>From date:${fromdate}\nTo date:${todate}\nSeminar Hall name:${seminarhall}\nPurpose of Event:${purposeofevent}\nAccomadation:${numberofpersons}people"
+                        }
+
+            transporter.sendMail(mail, (err, data) => {
+             if (err) {
+                 res.json({
+                  msg: 'fail'
+                         })
+                      } else {
+                res.json({
+                  msg: 'success'
+                        })
+                      }
+                 })
         })
         .then(trx.commit)
         .catch(trx.rollback)
-      })
-        .catch(err => res.status(400).json('unable to book'))
-
-
-  var mail = {
-    from: 'TCE',
-    to:'arlynsneha@gmail.com,m.harshidha@gmail.com,abiramip@student.tce.edu',
-    subject: 'Seminar Hall Request',
-    html:"Hey There!<b>You have received a Seminar hall Request.Please log into the website to accept or decline it."
-    //<b>From date:${fromdate}\nTo date:${todate}\nSeminar Hall name:${seminarhall}\nPurpose of Event:${purposeofevent}\nAccomadation:${numberofpersons}people"
-  }
-
-  transporter.sendMail(mail, (err, data) => {
-    if (err) {
-      res.json({
-        msg: 'fail'
-      })
-    } else {
-      res.json({
-        msg: 'success'
-      })
-    }
-  })
+      }) })
+        .catch(err => res.status(400).json('unable to book')) )
 })
 
   
