@@ -74,7 +74,7 @@ app.get('/fetchses',(req, res)=> {
  })
 
 app.post('/acceptid', (req, res) => {
-  const { id,email }=req.body;
+  const { id }=req.body;
 
   db('list')
   .where('id',id)
@@ -90,7 +90,7 @@ app.post('/acceptid', (req, res) => {
   })
 
   app.post('/rejectid', (req, res) => {
-  const { id,email }=req.body;
+  const { id}=req.body;
 
   db('list')
   .where('id',id)
