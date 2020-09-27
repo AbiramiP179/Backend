@@ -74,7 +74,7 @@ app.get('/fetchses',(req, res)=> {
  })
 
 app.post('/acceptid', (req, res) => {
-  const { id }=req.body;
+  const { id,email }=req.body;
 
   db('list')
   .where('id',id)
@@ -90,7 +90,7 @@ app.post('/acceptid', (req, res) => {
   })
 
   app.post('/rejectid', (req, res) => {
-  const { id }=req.body;
+  const { id,email }=req.body;
 
   db('list')
   .where('id',id)
@@ -157,7 +157,7 @@ app.post('/register', (req,res)=> {
 
 app.post('/send', (req, res, next) => {
   
-const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session }=req.body;
+const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session,email }=req.body;
 
 
 
@@ -200,7 +200,8 @@ const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session }=re
           purposeofevent:purposeofevent,
           numberofpersons:numberofpersons,
           session:session,
-          status:'pending'
+          status:'pending',
+          useremail:email
         })
         .into('list')
         .returning('*')
