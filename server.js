@@ -50,7 +50,7 @@ app.get('/',(req, res)=> {
 })
 
 app.get('/api',(req, res)=> {
-   return db.select('*').from('list').then(data => {
+   return db.select('*').from('list').where('status','pending').then(data => {
     res.json(data)
 })
  })
@@ -72,6 +72,40 @@ app.get('/fetchses',(req, res)=> {
 
 
  })
+
+app.post('/acceptid', (req, res) => {
+  const { id,email }=req.body;
+
+  db('list')
+  .where('id',id)
+  .update({
+    status: 'accept'
+    
+  })
+  .returning(['fromdate','seminarhall','session', 'status'])
+  .then( loginEmail => {
+            res.json(loginEmail[0]);
+        })
+  .catch(err => res.status(400).json('unable to update request'))
+  })
+
+  app.post('/rejectid', (req, res) => {
+  const { id,email }=req.body;
+
+  db('list')
+  .where('id',id)
+  .update({
+    status: 'reject'
+    
+  })
+  .returning(['fromdate','seminarhall','session', 'status'])
+  .then( loginEmail => {
+            res.json(loginEmail[0]);
+        })
+  .catch(err => res.status(400).json('unable to update request'))
+  })
+
+
 app.post('/signin', (req, res) => {
 
     const { email, password }=req.body;
@@ -123,7 +157,7 @@ app.post('/register', (req,res)=> {
 
 app.post('/send', (req, res, next) => {
   
-const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session }=req.body;
+const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session,email }=req.body;
 
 
 
@@ -159,12 +193,14 @@ const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session }=re
   
        db.transaction(trx => {
         trx.insert({
-          //fromdate:fromdate
+          fromdate:fromdate,
           email:data[0].email,
           seminarhall:data[0].seminarhall,
           purposeofevent:purposeofevent,
-          numberofpersons:numberofpersons
-          //session:session
+          numberofpersons:numberofpersons,
+          session:session,
+          status:'pending',
+          useremail:email
         })
         .into('list')
         .returning('*')
