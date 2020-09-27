@@ -138,11 +138,10 @@ const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session }=re
                
            // res.json(session)
 
-           if (data[0].session === session)
+           if (data[0].session === session && data[0].seminarhall===seminarhall && data[0].fromdate===fromdate)
            {
              res.status(400).send('there is already a booking')
            }
-
            else
            {
                 res.send('there is no booking')
