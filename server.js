@@ -157,7 +157,7 @@ app.post('/register', (req,res)=> {
 
 app.post('/send', (req, res, next) => {
   
-const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session,email }=req.body;
+const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session,email}=req.body;
 
 
 
@@ -170,9 +170,9 @@ const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session,emai
    })
   .then(data => {
                
-           // res.json(session)
+          
 
-           if (data[0].session === session && data[0].seminarhall===seminarhall && data[0].fromdate===fromdate)
+           if (data[0].session === session)
            {
              res.status(400).send('there is already a booking')
            }
@@ -194,6 +194,7 @@ const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session,emai
        db.transaction(trx => {
         trx.insert({
           fromdate:fromdate,
+          todate:todate,
           email:data[0].email,
           seminarhall:data[0].seminarhall,
           purposeofevent:purposeofevent,
@@ -210,7 +211,7 @@ const { fromdate,todate,seminarhall, purposeofevent,numberofpersons,session,emai
                   from: 'TCE',
                   to:booker[0].email,
                   subject: 'Seminar Hall Request',
-                  html:"Hey There!<b>You have received a Seminar hall Request.Please log into the website to accept or decline it."
+                  html:'<p>Click <a href="http://localhost:3000/About">here</a> to view the pending request</p>'
     //<b>From date:${fromdate}\nTo date:${todate}\nSeminar Hall name:${seminarhall}\nPurpose of Event:${purposeofevent}\nAccomadation:${numberofpersons}people"
                         }
 
